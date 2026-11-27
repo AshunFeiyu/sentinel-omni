@@ -1,0 +1,19 @@
+# Secrets & local wallet configs (NEVER commit)
+.env
+.env.*
+*.key
+
+# Internal planning & handoff notes (local only)
+HANDOFF_HISTORY.md
+HACKATHON_MASTER_PLAN.md
+DEMO_SCRIPT_2MIN.md
+
+# Foundry build & broadcast artifacts
+out/
+cache/
+broadcast/
+
+# OS & Python cache
+.DS_Store
+__pycache__/
+*.pyc

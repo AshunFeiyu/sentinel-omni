@@ -1,0 +1,85 @@
+[
+  {
+    "chain_id": 1301,
+    "chain_name": "Unichain Sepolia",
+    "contract": "0x3De9748671B9BB9dd9171aad60f11C2A830cf29B",
+    "event_name": "CollateralPriceShock",
+    "tx_hash": "0xde012858f8f26504d0568656661841b7710f754f0388604a1e9297cb362ecb4c",
+    "block_number": 68931660,
+    "timestamp_ms": 1795784088000,
+    "params": {
+      "shockBps": 4500,
+      "newPriceE18": "550000000000000000",
+      "reactiveTxHash": "0x7d3213d0197519f7a75b2d8197e4592d3a857cdbbdc775871bdd4d5a994982d8"
+    }
+  },
+  {
+    "chain_id": 84532,
+    "chain_name": "Base Sepolia",
+    "contract": "0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C",
+    "event_name": "Deposited",
+    "tx_hash": "0x1bd7f442533fc72174846989c86df43316ff37ca32a8fa211183f6be9e5828aa",
+    "block_number": 64311106,
+    "timestamp_ms": 1795784090000,
+    "params": {
+      "assets": 100000
+    }
+  },
+  {
+    "chain_id": 84532,
+    "chain_name": "Base Sepolia",
+    "contract": "0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C",
+    "event_name": "TxNavLocked",
+    "tx_hash": "0x0f08232df44e323deedaaf0748682a36ca60046525920e1bdec21e4a3e3ebfc4",
+    "block_number": 64311121,
+    "timestamp_ms": 1795784093000,
+    "params": {
+      "frozenTotalAssets": 100000,
+      "reactiveTxHash": "0x01e89dd0f224d4387331e310cd5840068d61c6ddfd9ef40984e6bf9aa0112254"
+    }
+  },
+  {
+    "chain_id": 84532,
+    "chain_name": "Base Sepolia",
+    "contract": "0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C",
+    "event_name": "DistressedSaleExecuted",
+    "tx_hash": "0x9be45faee6798fc45cd2af16afd32025eb2b83faf7c0a2b6d69f5e635d74e9c0",
+    "block_number": 64311140,
+    "timestamp_ms": 1795784096000,
+    "params": {
+      "lossBps": 5000,
+      "staleNavLocked": true,
+      "reactiveTxHash": "0xa945acd6f28c1cffdcdec604872170449d40210c2766284ba6ee23bfac41cfae"
+    }
+  },
+  {
+    "chain_id": 84532,
+    "chain_name": "Base Sepolia",
+    "contract": "0x42200AEAf0387903cCC0f5cB7D43798187a494C1",
+    "event_name": "VaultProtectionApplied",
+    "tx_hash": "0xaef5316cad57b15e8888537f4411dc3aa2cb92b27d3847b6febefbbbe291f5ec",
+    "block_number": 64311144,
+    "timestamp_ms": 1795784097000,
+    "params": {
+      "reasonCode": 2,
+      "safeReserveBps": 8000,
+      "rebalanceTxHash": "0xd9c02190f35f8fc3cdff75a9e1ec9eea486a54535bd96ef8797db2ba4b3e42da"
+    }
+  },
+  {
+    "chain_id": 84532,
+    "chain_name": "Base Sepolia",
+    "contract": "0x6644D4c0b2160e32684ec1ca81526090Bbc71A46",
+    "event_name": "ConflictingRootObserved",
+    "tx_hash": "0xfc8c0021c0378a00511b7cc8292cfe19903104adda5d0d35db47ca464b228e98",
+    "block_number": 64311183,
+    "timestamp_ms": 1795784105000,
+    "params": {
+      "gameId": 621,
+      "rootA": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "rootB": "0x2222222222222222222222222222222222222222222222222222222222222222",
+      "reactiveTxHash": "0x4a4885d108cd776128983ecc9fbabfd6f3babf63560c971b3d3d3cc65eb138e5",
+      "quarantineCallbackTxHash": "0xb6527843d7362537425f33e729784851ba02d10b354ebdff05282a94f5c67d90"
+    }
+  }
+]

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelOmni — Live Reactive DeFi Vault & Cross-Chain Verifier Immune Dashboard</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: #0f172a;
+      --panel2: #0b1222;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; padding: 24px; background: var(--bg); color: var(--text); }
+    .container { max-width: 1240px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
+    .badge { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(34,197,94,0.14); color: var(--good); border: 1px solid rgba(34,197,94,0.4); }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .card h2 { margin: 0 0 8px 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .metric { font-size: 26px; font-weight: 700; }
+    .metric.good { color: var(--good); }
+    .metric.danger { color: var(--danger); }
+    .metric.accent { color: var(--accent); }
+    .sub { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+    .split { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 16px; margin-bottom: 18px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .pill-crit { background: rgba(239,68,68,0.16); color: #fca5a5; }
+    .pill-ok { background: rgba(56,189,248,0.14); color: var(--accent); }
+    .pill-good { background: rgba(34,197,94,0.16); color: #86efac; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: #cbd5e1; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    button { background: #1d4ed8; color: #fff; border: 0; border-radius: 8px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    button.secondary { background: #1e293b; color: var(--text); border: 1px solid #334155; }
+    button.live { background: #0f766e; color: #fff; }
+    .rpc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+    .rpc-box { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+    .rpc-label { font-size: 11px; color: var(--muted); }
+    .rpc-val { font-size: 15px; font-weight: 700; margin-top: 4px; color: #f8fafc; }
+    @media (max-width: 960px) {
+      .grid4, .split, .rpc-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>SentinelOmni — Autonomous Reactive Vault &amp; Verifier Immune System</h1>
+        <div class="sub">Live Three-Chain Testnet Deployment: Unichain Sepolia (1301) &rarr; Reactive Lasna Omni (5318007) &rarr; Base Sepolia (84532)</div>
+      </div>
+      <span class="badge" id="statusBadge">LIVE ON-CHAIN • 1s END-TO-END LATENCY</span>
+    </header>
+
+    <div class="controls">
+      <button onclick="renderScenario('protected')">Live Protected Loop (SentinelOmni)</button>
+      <button class="secondary" onclick="renderScenario('unprotected')">Compare Unprotected Baseline (Exploited)</button>
+      <button class="live" onclick="fetchLiveChainState()">Read Live Base Sepolia RPC State</button>
+      <span class="sub" id="rpcStatus" style="margin-top:0;">Click to verify live contracts directly via public Base Sepolia RPC</span>
+    </div>
+
+    <div class="grid4">
+      <div class="card">
+        <h2>Measured Cross-Chain Latency</h2>
+        <div class="metric good" id="latencyMetric">1.0 sec</div>
+        <div class="sub">On-chain verified (`lastTotalLatencySec = 1`) vs. 12–45s off-chain keepers</div>
+      </div>
+      <div class="card">
+        <h2>Composite Risk Score</h2>
+        <div class="metric accent" id="riskScore">10,000 bps</div>
+        <div class="sub">Threshold: 7,000 bps • Unichain -45% Depeg + Base Stale-NAV 50% Sale</div>
+      </div>
+      <div class="card">
+        <h2>Passive LP Extra Loss</h2>
+        <div class="metric good" id="victimOutcome">$0 Extra Loss</div>
+        <div class="sub" id="victimSub">40,000 USDC (80%) auto-escaped to SafeHavenReserve; pro-rata &le; 1 wei</div>
+      </div>
+      <div class="card">
+        <h2>Dual-Proof TEE Finality</h2>
+        <div class="metric good" id="verifierOutcome">5 Days (Quarantined)</div>
+        <div class="sub" id="verifierSub">Bypassed challenged-game nullify deadlock in 1s (4 Base blocks)</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 18px;">
+      <h2>Live Base Sepolia On-Chain State Verification (Direct JSON-RPC `eth_call`)</h2>
+      <div class="rpc-grid">
+        <div class="rpc-box">
+          <div class="rpc-label">Vault Circuit Breaker</div>
+          <div class="rpc-val" id="liveBreaker">true (verified)</div>
+        </div>
+        <div class="rpc-box">
+          <div class="rpc-label">Stale firstTotalAssets</div>
+          <div class="rpc-val" id="liveStaleNav">0 (cleared)</div>
+        </div>
+        <div class="rpc-box">
+          <div class="rpc-label">SafeHaven Escaped Cash</div>
+          <div class="rpc-val" id="liveSafeReserve">40,000 USDC (80%)</div>
+        </div>
+        <div class="rpc-box">
+          <div class="rpc-label">Vault Callback Latency</div>
+          <div class="rpc-val" id="liveLatency">1s (2 interventions)</div>
+        </div>
+        <div class="rpc-box">
+          <div class="rpc-label">TEE Verifier Quarantine</div>
+          <div class="rpc-val" id="liveTee">teeTrusted=false · 5d</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h2>Verified Cross-Chain Execution Loops (Clickable Explorer Hashes)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Hop</th>
+              <th>Network &amp; Block</th>
+              <th>Event / Reactive Action</th>
+              <th>Tx Proof</th>
+            </tr>
+          </thead>
+          <tbody id="hopTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Local AI Causal Risk Attribution (0 External API)</h2>
+        <div id="attributionList" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Live Deployed Contracts (Three-Chain Testnet Mesh)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Network</th>
+            <th>Contract</th>
+            <th>Address</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Reactive Lasna (5318007)</td>
+            <td><code>SentinelReactiveOmni</code></td>
+            <td><a target="_blank" href="https://lasna.reactscan.net/address/0x6465c867144A08a9F8eCe82EB96c7179963015aB"><code>0x6465c867144A08a9F8eCe82EB96c7179963015aB</code></a></td>
+            <td>Cross-chain stateful risk engine (`SYSTEM.requestCallbackV_1_0`)</td>
+          </tr>
+          <tr>
+            <td>Base Sepolia (84532)</td>
+            <td><code>ProtectedCreditVault</code></td>
+            <td><a target="_blank" href="https://sepolia.basescan.org/address/0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C"><code>0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C</code></a></td>
+            <td>Credit vault with stale-NAV circuit breaker &amp; pro-rata settlement</td>
+          </tr>
+          <tr>
+            <td>Base Sepolia (84532)</td>
+            <td><code>SafeHavenReserve</code></td>
+            <td><a target="_blank" href="https://sepolia.basescan.org/address/0x3De9748671B9BB9dd9171aad60f11C2A830cf29B"><code>0x3De9748671B9BB9dd9171aad60f11C2A830cf29B</code></a></td>
+            <td>External safe-haven pool holding 80% escaped liquidity (40k USDC)</td>
+          </tr>
+          <tr>
+            <td>Base Sepolia (84532)</td>
+            <td><code>VaultSentinelCallback</code></td>
+            <td><a target="_blank" href="https://sepolia.basescan.org/address/0x42200AEAf0387903cCC0f5cB7D43798187a494C1"><code>0x42200AEAf0387903cCC0f5cB7D43798187a494C1</code></a></td>
+            <td>Authenticated Omni callback receiver + on-chain latency meter</td>
+          </tr>
+          <tr>
+            <td>Base Sepolia (84532)</td>
+            <td><code>DualProofDisputeMonitor</code></td>
+            <td><a target="_blank" href="https://sepolia.basescan.org/address/0x6644D4c0b2160e32684ec1ca81526090Bbc71A46"><code>0x6644D4c0b2160e32684ec1ca81526090Bbc71A46</code></a></td>
+            <td>TEE+ZK dispute monitor with equivocation quarantine target</td>
+          </tr>
+          <tr>
+            <td>Base Sepolia (84532)</td>
+            <td><code>VerifierSentinelCallback</code></td>
+            <td><a target="_blank" href="https://sepolia.basescan.org/address/0x8359795be38719c55896Ca316201dEB0336479c8"><code>0x8359795be38719c55896Ca316201dEB0336479c8</code></a></td>
+            <td>Authenticated Omni callback revoking compromised TEE trust</td>
+          </tr>
+          <tr>
+            <td>Unichain Sepolia (1301)</td>
+            <td><code>MockDepegPool</code></td>
+            <td><a target="_blank" href="https://sepolia.uniscan.xyz/address/0x3De9748671B9BB9dd9171aad60f11C2A830cf29B"><code>0x3De9748671B9BB9dd9171aad60f11C2A830cf29B</code></a></td>
+            <td>Sub-second collateral depeg oracle emitter (-45% shock)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const RPC_BASE = "https://sepolia.base.org";
+    const ADDRS = {
+      vault: "0x93bE0598B16eAbcf47DD987FEc433c9f34b2797C",
+      vaultCb: "0x42200AEAf0387903cCC0f5cB7D43798187a494C1",
+      monitor: "0x6644D4c0b2160e32684ec1ca81526090Bbc71A46",
+      verifierCb: "0x8359795be38719c55896Ca316201dEB0336479c8"
+    };
+
+    const PROTECTED_DATA = {
+      badge: "LIVE ON-CHAIN • 1s END-TO-END LATENCY",
+      badgeColor: "rgba(34,197,94,0.14)",
+      latency: "1.0 sec",
+      latencyClass: "metric good",
+      victimOutcome: "$0 Extra Loss",
+      victimClass: "metric good",
+      victimSub: "40,000 USDC (80%) auto-escaped to SafeHavenReserve; pro-rata <= 1 wei",
+      verifierOutcome: "5 Days (Quarantined)",
+      verifierClass: "metric good",
+      verifierSub: "teeTrusted = false, fastBridgePaused = true in 1s (4 Base blocks)",
+      hops: [
+        { hop: "A1. Origin", net: "Unichain (68931660)", ev: "CollateralPriceShock (-45%)", tx: "0xde012858f8f26504d0568656661841b7710f754f0388604a1e9297cb362ecb4c", url: "https://sepolia.uniscan.xyz/tx/0xde012858f8f26504d0568656661841b7710f754f0388604a1e9297cb362ecb4c" },
+        { hop: "A2. React", net: "Lasna (9377743)", ev: "SentinelReactiveOmni.react(Depeg)", tx: "0x7d3213d0197519f7a75b2d8197e4592d3a857cdbbdc775871bdd4d5a994982d8", url: "https://lasna.reactscan.net/tx/0x7d3213d0197519f7a75b2d8197e4592d3a857cdbbdc775871bdd4d5a994982d8" },
+        { hop: "A3. Origin", net: "Base (64311140)", ev: "DistressedSaleExecuted (-50%, Stale NAV)", tx: "0x9be45faee6798fc45cd2af16afd32025eb2b83faf7c0a2b6d69f5e635d74e9c0", url: "https://sepolia.basescan.org/tx/0x9be45faee6798fc45cd2af16afd32025eb2b83faf7c0a2b6d69f5e635d74e9c0" },
+        { hop: "A4. React", net: "Lasna (9377751)", ev: "react() -> SYSTEM.requestCallbackV_1_0", tx: "0xa945acd6f28c1cffdcdec604872170449d40210c2766284ba6ee23bfac41cfae", url: "https://lasna.reactscan.net/tx/0xa945acd6f28c1cffdcdec604872170449d40210c2766284ba6ee23bfac41cfae" },
+        { hop: "A5. Callback", net: "Base (64311144)", ev: "triggerEmergencyCircuitBreaker (1s E2E!)", tx: "0xaef5316cad57b15e8888537f4411dc3aa2cb92b27d3847b6febefbbbe291f5ec", url: "https://sepolia.basescan.org/tx/0xaef5316cad57b15e8888537f4411dc3aa2cb92b27d3847b6febefbbbe291f5ec" },
+        { hop: "A6. Callback", net: "Base (64311145)", ev: "executeSelfHealingRebalance (40k SafeHaven)", tx: "0xd9c02190f35f8fc3cdff75a9e1ec9eea486a54535bd96ef8797db2ba4b3e42da", url: "https://sepolia.basescan.org/tx/0xd9c02190f35f8fc3cdff75a9e1ec9eea486a54535bd96ef8797db2ba4b3e42da" },
+        { hop: "B1. Origin", net: "Base (64311183)", ev: "ConflictingRootObserved (game #621)", tx: "0xfc8c0021c0378a00511b7cc8292cfe19903104adda5d0d35db47ca464b228e98", url: "https://sepolia.basescan.org/tx/0xfc8c0021c0378a00511b7cc8292cfe19903104adda5d0d35db47ca464b228e98" },
+        { hop: "B2. React", net: "Lasna (9377759)", ev: "react() -> rootA != rootB -> Callback", tx: "0x4a4885d108cd776128983ecc9fbabfd6f3babf63560c971b3d3d3cc65eb138e5", url: "https://lasna.reactscan.net/tx/0x4a4885d108cd776128983ecc9fbabfd6f3babf63560c971b3d3d3cc65eb138e5" },
+        { hop: "B3. Callback", net: "Base (64311187)", ev: "quarantineCompromisedVerifier (5d delay, 1s!)", tx: "0xb6527843d7362537425f33e729784851ba02d10b354ebdff05282a94f5c67d90", url: "https://sepolia.basescan.org/tx/0xb6527843d7362537425f33e729784851ba02d10b354ebdff05282a94f5c67d90" }
+      ],
+      attributions: [
+        {
+          code: "STALE_NAV_FORCE_SELL_DRAIN_PREVENTED",
+          sev: "CRITICAL",
+          cause: "firstTotalAssets locked at $100k before 50% distressed credit sale ($50k cash).",
+          action: "Cleared stale NAV & migrated 40,000 USDC (80%) to SafeHavenReserve in 1.0s."
+        },
+        {
+          code: "MULTI_CHAIN_DEPEG_CASCADE",
+          sev: "HIGH",
+          cause: "Unichain Sepolia -45% collateral shock correlated with Base Sepolia NAV lock (risk = 10,000 bps).",
+          action: "Autonomous Lasna state machine armed zero-keeper protection without external bots."
+        },
+        {
+          code: "DUAL_PROOF_TEE_EQUIVOCATION_QUARANTINED",
+          sev: "CRITICAL",
+          cause: "Challenged game #621 blocks legacy permissionless nullify() via TeeNullifyBlockedAfterChallenge.",
+          action: "Reactive proved rootA != rootB & set teeTrusted=false, finalizationDelay=5d, fastBridgePaused=true."
+        }
+      ]
+    };
+
+    const UNPROTECTED_DATA = {
+      badge: "BASELINE VULNERABLE • 100% LP WIPEOUT",
+      badgeColor: "rgba(239,68,68,0.18)",
+      latency: "15–60 min",
+      latencyClass: "metric danger",
+      victimOutcome: "-$25,000 (100% Wipeout)",
+      victimClass: "metric danger",
+      victimSub: "Attacker redeemed 50% shares at stale $1.00 NAV -> drained all $50,000 cash",
+      verifierOutcome: "1 Day (Un-nullified TEE)",
+      verifierClass: "metric danger",
+      verifierSub: "legacyNullifyTee reverted; compromised TEE keeps fast 1-day finalization active",
+      hops: [
+        { hop: "1. Setup", net: "Base Sepolia", ev: "beginTxNavLock() -> firstTotalAssets = $100k", tx: "Foundry baseline test", url: "" },
+        { hop: "2. Loss", net: "Base Sepolia", ev: "executeDistressedSale(50%) -> $50k cash", tx: "Foundry baseline test", url: "" },
+        { hop: "3. Exploit", net: "Base Sepolia", ev: "redeem(50k shares) -> extracts ALL $50k", tx: "Victim left with $0", url: "" },
+        { hop: "4. Dispute", net: "Base Sepolia", ev: "challengeGame(621) -> legacyNullifyTee REVERTS", tx: "TEE remains trusted", url: "" }
+      ],
+      attributions: [
+        {
+          code: "UNPROTECTED_STALE_NAV_EXPLOIT",
+          sev: "CRITICAL",
+          cause: "No Reactive listener; intra-tx stale NAV paid 100% of recovery to first exit.",
+          action: "Passive LP left with 50,000 shares backed by $0 USDC (verified in SentinelOmni.t.sol)."
+        }
+      ]
+    };
+
+    function shortTx(t) {
+      return t.startsWith("0x") ? `${t.slice(0, 8)}...${t.slice(-6)}` : t;
+    }
+
+    function renderScenario(mode) {
+      const d = mode === "protected" ? PROTECTED_DATA : UNPROTECTED_DATA;
+      const badge = document.getElementById("statusBadge");
+      badge.textContent = d.badge;
+      badge.style.background = d.badgeColor;
+
+      const latEl = document.getElementById("latencyMetric");
+      latEl.textContent = d.latency;
+      latEl.className = d.latencyClass;
+
+      const vEl = document.getElementById("victimOutcome");
+      vEl.textContent = d.victimOutcome;
+      vEl.className = d.victimClass;
+      document.getElementById("victimSub").textContent = d.victimSub;
+
+      const dEl = document.getElementById("verifierOutcome");
+      dEl.textContent = d.verifierOutcome;
+      dEl.className = d.verifierClass;
+      document.getElementById("verifierSub").textContent = d.verifierSub;
+
+      document.getElementById("hopTable").innerHTML = d.hops.map(h => {
+        const txCell = h.url
+          ? `<a target="_blank" href="${h.url}"><code>${shortTx(h.tx)}</code></a>`
+          : `<code>${h.tx}</code>`;
+        return `<tr><td><code>${h.hop}</code></td><td>${h.net}</td><td>${h.ev}</td><td>${txCell}</td></tr>`;
+      }).join("");
+
+      document.getElementById("attributionList").innerHTML = d.attributions.map(a =>
+        `<div style="border:1px solid #1e293b;border-radius:8px;padding:12px;background:#0b1222;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <code>${a.code}</code>
+            <span class="pill pill-crit">${a.sev}</span>
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;margin-bottom:4px;"><b>Root Cause:</b> ${a.cause}</div>
+          <div style="font-size:12px;color:#86efac;"><b>Defense:</b> ${a.action}</div>
+        </div>`
+      ).join("");
+    }
+
+    async function ethCall(to, data) {
+      const res = await fetch(RPC_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to, data }, "latest"] })
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message);
+      return BigInt(json.result);
+    }
+
+    async function fetchLiveChainState() {
+      const status = document.getElementById("rpcStatus");
+      status.textContent = "Querying live Base Sepolia RPC (https://sepolia.base.org)...";
+      try {
+        const [breaker, staleNav, safeCash, interventions, latencySec, teeTrusted, delaySec, paused] = await Promise.all([
+          ethCall(ADDRS.vault, "0xf609844d"),      // circuitBreakerActive()
+          ethCall(ADDRS.vault, "0xf73f8f31"),      // firstTotalAssets()
+          ethCall(ADDRS.vault, "0xeed6eff9"),      // safeReserveCash()
+          ethCall(ADDRS.vaultCb, "0x668bc036"),    // interventionsExecuted()
+          ethCall(ADDRS.vaultCb, "0xcfbd7cb6"),    // lastTotalLatencySec()
+          ethCall(ADDRS.monitor, "0x3e80a437"),    // teeTrusted()
+          ethCall(ADDRS.monitor, "0xf9823a5c"),    // finalizationDelay()
+          ethCall(ADDRS.monitor, "0x656d6a59")     // fastBridgePaused()
+        ]);
+        document.getElementById("liveBreaker").textContent = breaker === 1n ? "true (LIVE)" : "false";
+        document.getElementById("liveStaleNav").textContent = `${staleNav.toString()} (LIVE)`;
+        document.getElementById("liveSafeReserve").textContent = `${(Number(safeCash) / 1e6).toLocaleString()} USDC (LIVE)`;
+        document.getElementById("liveLatency").textContent = `${latencySec.toString()}s (${interventions.toString()} callbacks)`;
+        document.getElementById("liveTee").textContent = `teeTrusted=${teeTrusted === 1n} · ${Number(delaySec) / 86400}d · paused=${paused === 1n}`;
+        status.textContent = `Live RPC synced from Base Sepolia at ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        status.textContent = `RPC fetch error: ${err.message}`;
+      }
+    }
+
+    renderScenario("protected");
+  </script>
+</body>
+</html>

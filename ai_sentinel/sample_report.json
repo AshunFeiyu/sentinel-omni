@@ -1,0 +1,107 @@
+{
+  "system": "SentinelOmni v1.1 (Every Second Counts \u2014 Zero-API Risk Attribution Engine)",
+  "compositeRiskBps": 10000,
+  "equivocationQuarantined": true,
+  "latencyBenchmark": {
+    "sentinelOmniEndToEndMs": 1000,
+    "offchainKeeperRangeMs": "12000-45000 (single point of failure)",
+    "manualMultisigRangeMs": "900000-3600000 (100% LP wipeout)"
+  },
+  "eventTimeline": [
+    {
+      "chainId": 1301,
+      "chainName": "Unichain Sepolia",
+      "event": "CollateralPriceShock",
+      "txHash": "0xde012858f8f26504d0568656661841b7710f754f0388604a1e9297cb362ecb4c",
+      "blockNumber": 68931660,
+      "timestampMs": 1795784088000,
+      "compositeRiskBpsAfterEvent": 3600
+    },
+    {
+      "chainId": 84532,
+      "chainName": "Base Sepolia",
+      "event": "Deposited",
+      "txHash": "0x1bd7f442533fc72174846989c86df43316ff37ca32a8fa211183f6be9e5828aa",
+      "blockNumber": 64311106,
+      "timestampMs": 1795784090000,
+      "compositeRiskBpsAfterEvent": 3600
+    },
+    {
+      "chainId": 84532,
+      "chainName": "Base Sepolia",
+      "event": "TxNavLocked",
+      "txHash": "0x0f08232df44e323deedaaf0748682a36ca60046525920e1bdec21e4a3e3ebfc4",
+      "blockNumber": 64311121,
+      "timestampMs": 1795784093000,
+      "compositeRiskBpsAfterEvent": 6100
+    },
+    {
+      "chainId": 84532,
+      "chainName": "Base Sepolia",
+      "event": "DistressedSaleExecuted",
+      "txHash": "0x9be45faee6798fc45cd2af16afd32025eb2b83faf7c0a2b6d69f5e635d74e9c0",
+      "blockNumber": 64311140,
+      "timestampMs": 1795784096000,
+      "compositeRiskBpsAfterEvent": 10000
+    },
+    {
+      "chainId": 84532,
+      "chainName": "Base Sepolia",
+      "event": "VaultProtectionApplied",
+      "txHash": "0xaef5316cad57b15e8888537f4411dc3aa2cb92b27d3847b6febefbbbe291f5ec",
+      "blockNumber": 64311144,
+      "timestampMs": 1795784097000,
+      "compositeRiskBpsAfterEvent": 10000
+    },
+    {
+      "chainId": 84532,
+      "chainName": "Base Sepolia",
+      "event": "ConflictingRootObserved",
+      "txHash": "0xfc8c0021c0378a00511b7cc8292cfe19903104adda5d0d35db47ca464b228e98",
+      "blockNumber": 64311183,
+      "timestampMs": 1795784105000,
+      "compositeRiskBpsAfterEvent": 10000
+    }
+  ],
+  "attributions": [
+    {
+      "reasonCode": 2,
+      "classification": "STALE_NAV_FORCE_SELL_DRAIN_PREVENTED",
+      "severity": "CRITICAL",
+      "confidence": 0.99,
+      "rootCause": "Single-transaction firstTotalAssets accrual lock combined with discounted forceSellable loss realization allows stale 1.00 NAV redemption of newly recovered cash.",
+      "reactiveSelfHealingAction": "SentinelReactiveOmni dispatched triggerEmergencyCircuitBreaker + executeSelfHealingRebalance (80% SafeHavenReserve migration) via requestCallbackV_1_0.",
+      "economicImpact": {
+        "unprotectedVictimLossUsd": 25000,
+        "protectedVictimLossUsd": 0,
+        "valueSavedUsd": 25000,
+        "proRataFairShareUsd": 25000
+      }
+    },
+    {
+      "reasonCode": 1,
+      "classification": "MULTI_CHAIN_DEPEG_CASCADE",
+      "severity": "HIGH",
+      "confidence": 0.96,
+      "rootCause": "Sub-second Unichain collateral depeg shock correlated with Base Sepolia intra-tx NAV lock pushed composite risk score above 7,000 bps threshold.",
+      "reactiveSelfHealingAction": "Preemptive circuit breaker + SafeHaven liquidity migration engaged on Base Sepolia.",
+      "economicImpact": {
+        "compositeRiskBps": 10000,
+        "thresholdBps": 7000
+      }
+    },
+    {
+      "reasonCode": 3,
+      "classification": "DUAL_PROOF_TEE_EQUIVOCATION_QUARANTINED",
+      "severity": "CRITICAL",
+      "confidence": 1.0,
+      "rootCause": "Conflicting TEE vs canonical ZK state roots observed on challenged dispute game; legacy permissionless nullify() reverts once challenged.",
+      "reactiveSelfHealingAction": "SentinelReactiveOmni proved rootA != rootB on-chain and called quarantineCompromisedVerifier -> teeTrusted=false, finalizationDelay=5d, fastBridgePaused=true.",
+      "economicImpact": {
+        "legacyFinalizationDelaySec": 86400,
+        "quarantinedFinalizationDelaySec": 432000,
+        "soundnessBypassPrevented": true
+      }
+    }
+  ]
+}
