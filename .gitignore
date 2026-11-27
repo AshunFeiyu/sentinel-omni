@@ -13,7 +13,8 @@ out/
 cache/
 broadcast/
 
-# OS & Python cache
+# OS, media & Python cache
 .DS_Store
 __pycache__/
 *.pyc
+*.mp4

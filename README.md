@@ -3,6 +3,7 @@
 > **Competition**: [DoraHacks — Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni) (Deadline: **2026-12-05 12:00 UTC**)
 > **Primary Track**: **`Every Second Counts`** (Sub-Second Low-Latency DeFi across Unichain Sepolia + Reactive Lasna Omni + Base Sepolia)
 > **Live Interactive Demo (Direct Base Sepolia RPC)**: https://ashunfeiyu.github.io/sentinel-omni/
+> **Demo Video (2 min 18 sec)**: https://youtu.be/nJ8WcKpKQJ0
 > **Live On-Chain Measured End-to-End Latency**: **`1.0 second`** (`VaultSentinelCallback.lastTotalLatencySec() == 1` across real public testnets!)
 
 ---
